@@ -1,0 +1,60 @@
+<html>
+
+<head>
+  <title>Express</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+  <h1>Express con socket.io</h1>
+  <p>Welcome to Express</p>
+  <h4 id="clientsCount"></h4>
+  <ul id="chat"></ul>
+  <div>
+    <div>
+      <label>Name: </label>
+      <input id="name" type="text">
+    </div>
+    <div>
+      <label>Message: </label>
+      <input id="msg" type="text">
+    </div>
+    <button id="btnSubmit" type="submit">Submit</button>
+  </div>
+</body>
+<script>
+  const socket = io();
+
+  const name = document.getElementById('name');
+  const msg = document.getElementById('msg');
+  const btnSubmit = document.getElementById('btnSubmit');
+  const ul = document.getElementById('chat');
+  const num = document.getElementById('clientsCount');
+
+  btnSubmit.addEventListener('click', () => {
+    console.log(name.value, msg.value);
+
+    socket.emit('envio_datos', {
+      user: name.value,
+      msg: msg.value 
+    });
+  });
+
+  // Esto es para que el cliente reciba todo lo que el server a emitido al emitir algo un cliente.
+  socket.on('envio_datos', data => {
+    console.log('cliente recibe datos del server ', data);
+    const li = document.createElement('li');
+    li.innerText = `${data.user}: ${data.msg}`;
+    
+    ul.append(li);
+  });
+
+  // Recibimos del server el clientsCount (cuantos sockets hay conectados)
+  socket.on('num_sockets', clientsCount => {
+    num.innerText = `ClientsCount: ${clientsCount}`;
+  });
+
+</script>
+
+</html>
